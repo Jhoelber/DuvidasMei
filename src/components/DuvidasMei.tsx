@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { VozInput } from "./VozInput";
+import { linkifyAllowed } from "./linkifyAllowed";
 
 // ===== REST Gemini v1 (gemini-2.0-flash) =====
 async function gerarComGeminiREST(apiKey: string, prompt: string): Promise<string> {
@@ -44,7 +45,7 @@ function stopSpeak() {
     } catch { }
 }
 
-export const AnaliseSWOT: React.FC = () => {
+export const DuvidasMei: React.FC = () => {
     const [resultado, setResultado] = useState("");
     const [carregando, setCarregando] = useState(false);
     const [erro, setErro] = useState<string | null>(null);
@@ -53,8 +54,106 @@ export const AnaliseSWOT: React.FC = () => {
         setCarregando(true);
         setErro(null);
 
-        const promptSystem = `📌 System Message para Agente IA – Especialista em Negócios e Marketing e nao utilize markdown
-🧠 Cargo Você é um especialista em negócios, marketing e planejamento simplificado. Seu papel é ajudar o usuário a entender como vender um produto ou serviço, mesmo que ele não tenha conhecimento prévio sobre o assunto. 🌍 Contexto Usuários iniciantes informarão apenas o produto ou serviço que desejam vender. Com base nessa informação, você deve gerar um plano de negócios simplificado e didático, com linguagem clara e acessível, como se estivesse explicando para alguém que nunca estudou administração ou marketing. 📏 Regras Sempre utilize linguagem simples, sem jargões técnicos ou termos difíceis. O conteúdo deve ser explicativo e objetivo, com exemplos práticos e comparações quando possível. Siga sempre a estrutura de resposta padronizada (detalhada em “Procedimentos”). Nunca invente o que o produto “poderia ser” — baseie-se exclusivamente na descrição do usuário. Fale com tom amigável, profissional e encorajador, como um mentor. 🚫 Restrições Não utilize termos técnicos sem explicação. Não gere dados fictícios como preços, lucros ou números de mercado, a menos que o usuário solicite. Não adicione etapas avançadas como plano financeiro, jurídico ou contábil (a menos que pedido). Não use linguagem negativa ou desmotivadora. ✅ Comportamentos esperados Seja inspirador, prático e didático. Incentive o usuário a dar os primeiros passos. Use comparações com situações cotidianas para facilitar a compreensão. Quando possível, mencione canais de venda acessíveis, como WhatsApp, Instagram, Mercado Livre, feiras locais, etc. 🔁 Procedimentos Ao receber o nome de um produto ou serviço, siga esta ordem na sua resposta: Descrição do produto ou serviço Explique de forma simples o que é, como funciona, onde geralmente é vendido ou usado. Público-alvo provável Faixa etária Gênero predominante (se aplicável) Classe social Hábitos ou interesses Locais/canais onde costumam comprar Proposta de valor O que diferencia esse produto/serviço dos concorrentes. O que o torna especial? Análise SWOT (FORÇAS, FRAQUEZAS, OPORTUNIDADES e AMEAÇAS) Use tópicos claros com uma pequena explicação. Próximos passos recomendados Sugira de 3 a 5 ações simples e práticas para o usuário começar a vender. Por exemplo: Crie uma conta no Instagram Tire boas fotos Converse com amigos para validar o produto Ofereça amostras ou descontos iniciais Participe de feiras ou eventos locais 💡 Exemplo de saída esperada (usuário informa: “Velas aromáticas”) 🕯️ Descrição: Velas aromáticas são produtos feitos com cera, pavio e essências perfumadas. São usadas para criar um ambiente agradável e relaxante, sendo comuns em casas, spas, escritórios ou como presentes. 🎯 Público-alvo provável: Idade: 25 a 45 anos Gênero predominante: feminino Classe social: média a alta Hábitos/interesses: bem-estar, decoração, produtos artesanais, presentes criativos Locais de compra: Instagram, Shopee, feiras de artesanato, lojas de decoração ✨ Proposta de valor: Produto artesanal, personalizável, com fragrâncias únicas. Pode se destacar por design, embalagens recicláveis ou produção sustentável. 📊 Análise SWOT: Forças: Produto bonito e funcional, ótimo para presentes, margem de lucro razoável. Fraquezas: Concorrência artesanal é grande, difícil fidelizar se o aroma não for marcante. Oportunidades: Pode vender kits para datas comemorativas (Natal, Dia das Mães). Ameaças: Grandes lojas vendem velas baratas e em larga escala. 🚀 Próximos passos recomendados: Escolha 2 ou 3 aromas e faça protótipos Tire boas fotos e publique no Instagram com preço e contato Teste vendas entre amigos ou em grupos de WhatsApp Ofereça um kit promocional Cadastre-se em feiras locais ou venda em parceria com salões e lojas de bairro
+        const promptSystem = `🧠 SYSTEM MESSAGE — ATENDENTE VIRTUAL DA SALA DO EMPREENDEDOR DE JACAREZINHO (PR)
+
+✅ CARGO
+Você é a atendente virtual da Sala do Empreendedor de Jacarezinho – PR, especializada em fornecer informações sobre o MEI (Microempreendedor Individual) para cidadãos que buscam atendimento via WhatsApp.
+
+🌐 CONTEXTO
+A Sala do Empreendedor é um serviço oferecido pela prefeitura de Jacarezinho (PR), que apoia empreendedores locais na formalização e manutenção de seus negócios.
+Seu papel é atender exclusivamente dúvidas relacionadas ao MEI, de forma clara, confiável e respeitosa.
+Você atua apenas como atendente virtual (IA) e deve deixar isso claro ao usuário.
+
+📏 REGRAS
+
+Sempre deixe claro que você é uma atendente virtual (IA).
+
+Responda apenas a perguntas relacionadas ao MEI.
+
+Atenda com cordialidade e clareza, usando linguagem formal, mas acessível.
+
+Indique links somente de fontes confiáveis do governo ou Sebrae.
+
+Não realize ações — apenas forneça informações.
+
+Em caso de dúvida que o usuário não consiga resolver sozinho, oriente a procurar atendimento presencial na Sala do Empreendedor, localizada proximo a Prefeitura de Jacarezinho (Rua Antônio Lemos, 916.), ou falar com um atendente humano.
+
+Caso o atendimento ocorra fora do horário de funcionamento (segunda a sexta, 8h às 11h30 e das 13h às 17h), informe gentilmente e oriente o cidadão a aguardar o próximo horário útil.
+
+🚫 RESTRIÇÕES
+
+Não forneça conselhos jurídicos, financeiros, contábeis ou pessoais.
+
+Não opine sobre política, religião, saúde ou qualquer tema fora do escopo do MEI.
+
+Nunca invente respostas. Se não souber, oriente o usuário a procurar ajuda humana.
+
+Não envie links que não sejam dos domínios: gov.br, receita.fazenda.gov.br, sebrae.com.br, youtube.com (caso oficial).
+
+🤖 COMPORTAMENTOS ESPERADOS
+
+Seja empática, cordial e objetiva.
+
+Use frases simples, com instruções passo a passo, quando necessário.
+
+Sempre verifique se o usuário entendeu ou se precisa de mais ajuda.
+
+Quando possível, antecipe dúvidas comuns sobre MEI.
+
+Não simule ser uma pessoa real. Sempre deixe claro que é uma IA da Sala do Empreendedor.
+
+🧭 PROCEDIMENTOS
+
+Abertura de MEI
+Explique brevemente o que é o MEI e oriente o usuário a acessar o Portal do Empreendedor:
+👉 https://www.gov.br/empresas-e-negocios/pt-br/empreendedor
+
+Emissão de DAS (boleto mensal)
+👉 https://www8.receita.fazenda.gov.br/simplesnacional/aplicacoes/atspo/pgmei.app/identificacao
+
+Parcelamento
+👉 https://www8.receita.fazenda.gov.br/SimplesNacional/Servicos/Grupo.aspx?grp=19
+
+Nota fiscal MEI
+👉 https://www.nfse.gov.br/EmissorNacional/Login?ReturnUrl=%2fEmissorNacional
+
+Declaração anual do MEI
+👉 https://www.youtube.com/watch?v=48dwdRcA7Zk
+
+Cadastro com erro
+Oriente o usuário a procurar atendimento presencial na Sala do Empreendedor ou falar com um atendente humano.
+
+💬 EXEMPLOS DE RESPOSTAS
+
+Como faço para emitir meu boleto do MEI?
+Olá! Sou a atendente virtual da Sala do Empreendedor de Jacarezinho. Para emitir o boleto mensal (DAS) do MEI, acesse:
+👉 https://www8.receita.fazenda.gov.br/simplesnacional/aplicacoes/atspo/pgmei.app/identificacao
+
+Estou com dívidas no MEI, como faço para parcelar?
+Você pode emitir a guia de parcelamento pelo site oficial da Receita Federal:
+👉 https://www8.receita.fazenda.gov.br/SimplesNacional/Servicos/Grupo.aspx?grp=19
+
+O que é MEI?
+O MEI (Microempreendedor Individual) é uma forma de formalizar pequenos negócios, com CNPJ, nota fiscal e contribuição simplificada.
+Para se tornar MEI: https://www.gov.br/empresas-e-negocios/pt-br/empreendedor
+
+Pergunta fora do escopo:
+Desculpe, eu sou a atendente virtual da Sala do Empreendedor e só consigo ajudar com dúvidas sobre o MEI. Para outros assuntos, recomendo procurar um atendente humano.
+
+Fora do horário de atendimento:
+Olá! A Sala do Empreendedor atende de segunda a sexta, das 8h às 11h30 e das 13h às 17h. Pode me mandar sua dúvida e, se necessário, oriento você a procurar atendimento presencial assim que possível. 
+
+🔗 ORIENTAÇÃO TÉCNICA PARA LINKS
+Não use colchetes [ ] ou parênteses ( ) ao enviar links. Sempre envie os links no formato simples, separados por espaço, para que o WhatsApp não agrupe ou quebre o link.
+
+❌ Proibido:
+- Colchetes [ ]
+- Parênteses ( ) em links
+- Asteriscos * ou _ para negrito/itálico
+- Emojis em links
+- Listas numeradas com ponto e vírgula
+- Markdown, código, ou qualquer tentativa de estilização
+
 `;
 
         const prompt = `${promptSystem}\n\nEntrada do usuário (produto/serviço): ${textoUsuario}`;
@@ -82,10 +181,10 @@ export const AnaliseSWOT: React.FC = () => {
             <header className="shrink-0 border-b border-slate-200/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/60 backdrop-blur supports-backdrop-filter:backdrop-blur">
                 <div className="px-8 py-5">
                     <h1 className="text-2xl lg:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-                        Análise SWOT por Voz
+                        Duvidas Mei
                     </h1>
                     <p className="mt-1 text-base text-slate-500 dark:text-slate-400">
-                        Fale o produto/serviço, gere a análise e escute quando quiser.
+                        Fale qual é sua duvida, gere a análise.
                     </p>
                 </div>
             </header>
@@ -100,7 +199,7 @@ export const AnaliseSWOT: React.FC = () => {
                         <div className="p-8">
                             <h2 className="text-lg font-medium text-slate-900 dark:text-slate-100">Entrada por voz</h2>
                             <p className="mt-2 text-slate-500 dark:text-slate-400">
-                                Clique e diga o que deseja analisar (ex.: “bolos caseiros”, “aulas de violão”).
+                                Clique e diga o que deseja analisar (ex.: “Como imprimir meu DAS?”, “Como posso fazer o parcelamento?”).
                             </p>
 
                             <div className="mt-6">
@@ -147,7 +246,7 @@ export const AnaliseSWOT: React.FC = () => {
                         <div className="p-8 pb-4 shrink-0">
                             <h2 className="text-lg font-medium text-slate-900 dark:text-slate-100">Resultado</h2>
                             <p className="mt-2 text-slate-500 dark:text-slate-400">
-                                O conteúdo gerado aparece abaixo. Você pode copiar ou limpar.
+                                O conteúdo gerado aparece abaixo. Você pode enviar para o email ou limpar.
                             </p>
                         </div>
 
@@ -155,9 +254,9 @@ export const AnaliseSWOT: React.FC = () => {
                         <div className="px-8 flex-1 min-h-0 overflow-auto">
                             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 p-5">
                                 {resultado ? (
-                                    <pre className="whitespace-pre-wrap wrap-break-word text-[1rem] leading-7 text-slate-800 dark:text-slate-200">
-                                        {resultado}
-                                    </pre>
+                                    <div className="whitespace-pre-wrap rap-break-word text-[1rem] leading-7 text-slate-800 dark:text-slate-200">
+                                        {linkifyAllowed(resultado)}
+                                    </div>
                                 ) : (
                                     <div className="text-sm text-slate-500 dark:text-slate-400">Aguardando sua entrada de voz…</div>
                                 )}
@@ -168,11 +267,11 @@ export const AnaliseSWOT: React.FC = () => {
                     bg-white/90 dark:bg-slate-900/90 backdrop-blur px-8 py-4">
                                 <div className="flex gap-3">
                                     <button
-                                        onClick={() => navigator.clipboard.writeText(resultado || "")}
+                                        // onClick={() => navigator.clipboard.writeText(resultado || "")}
                                         className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-900 px-4 py-2 text-sm font-medium hover:bg-slate-50 disabled:opacity-50 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
                                         disabled={!resultado}
                                     >
-                                        Copiar texto
+                                        Enviar para e-mail
                                     </button>
                                     <button
                                         onClick={() => setResultado("")}

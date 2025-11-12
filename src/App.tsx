@@ -1,10 +1,10 @@
-import { AnaliseSWOT } from "./components/AnaliseSwot";
+import {  DuvidasMei } from "./components/DuvidasMei";
 
 
 function App() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
-      <AnaliseSWOT />
+      <DuvidasMei />
     </div>
   );
 }

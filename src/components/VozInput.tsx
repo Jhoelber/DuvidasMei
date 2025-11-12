@@ -34,14 +34,14 @@ export const VozInput: React.FC<VozInputProps> = ({ onResult }) => {
 
   return (
     <div className="text-center">
-      <p className="mb-2 text-gray-700">Fale o nome do produto ou serviço:</p>
+      <p className="mb-2 text-gray-700">Clique em falar para tirar sua dúvida</p>
       <button
         onClick={iniciar}
         className={`px-6 py-3 rounded-lg text-white ${
           ouvindo ? "bg-red-500" : "bg-blue-600"
         }`}
       >
-        {ouvindo ? "Ouvindo..." : "🎙️ Falar"}
+        {ouvindo ? "Ouvindo..." : "Falar"}
       </button>
       {texto && <p className="mt-3 text-sm italic text-gray-600">"{texto}"</p>}
     </div>
