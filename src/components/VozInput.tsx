@@ -183,7 +183,7 @@ export const VozInput: React.FC<VozInputProps> = ({ onResult }) => {
 
   return (
     <div className="text-center">
-      <p className="mb-2 text-gray-700">Fale o nome do produto ou serviço:</p>
+      <p className="mb-2 text-gray-700">Clique em falar e tire sua duvida:</p>
 
       <button
         onClick={iniciar}
@@ -191,7 +191,7 @@ export const VozInput: React.FC<VozInputProps> = ({ onResult }) => {
           ouvindo ? "bg-red-500" : "bg-blue-600"
         }`}
       >
-        {ouvindo ? "Gravando..." : "🎙️ Falar"}
+        {ouvindo ? "Gravando..." : " Falar"}
       </button>
 
       {status && (
