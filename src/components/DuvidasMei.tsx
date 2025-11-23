@@ -50,9 +50,15 @@ export const DuvidasMei: React.FC = () => {
     const [carregando, setCarregando] = useState(false);
     const [erro, setErro] = useState<string | null>(null);
 
+    // <<< NOVO: estados para e-mail
+    const [email, setEmail] = useState("");
+    const [enviando, setEnviando] = useState(false);
+    const [mensagemEnvio, setMensagemEnvio] = useState<string | null>(null);
+
     const gerarAnalise = async (textoUsuario: string) => {
         setCarregando(true);
         setErro(null);
+        setMensagemEnvio(null);
 
         const promptSystem = `🧠 SYSTEM MESSAGE — ATENDENTE VIRTUAL DA SALA DO EMPREENDEDOR DE JACAREZINHO (PR)
 
@@ -237,10 +243,9 @@ Emojis na mesma linha do link.
 Listas numeradas com ponto e vírgula.
 
 Markdown, código, ou qualquer tentativa de estilização (as respostas devem ser apenas texto simples).
+        `;
 
-`;
-
-        const prompt = `${promptSystem}\n\nEntrada do usuário (produto/serviço): ${textoUsuario}`;
+        const prompt = `${promptSystem}\n\nPergunta do usuário: ${textoUsuario}`;
 
         try {
             const resposta = await gerarComGeminiREST(
@@ -257,10 +262,43 @@ Markdown, código, ou qualquer tentativa de estilização (as respostas devem se
         }
     };
 
-    return (
-        // Troque o wrapper principal por este:
-        <div className="h-screen w-screen bg-linear-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 flex flex-col">
+    // <<< NOVO: função para enviar a resposta por e-mail
+    const enviarPorEmail = async () => {
+        if (!email || !resultado) {
+            setMensagemEnvio("Informe um e-mail e gere uma resposta antes de enviar.");
+            return;
+        }
 
+        try {
+            setEnviando(true);
+            setMensagemEnvio(null);
+
+            const res = await fetch("http://localhost:3000/api/send-email-mei", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email,
+                    resposta: resultado, // texto gerado pela IA
+                }),
+            });
+
+            if (!res.ok) {
+                throw new Error("Erro ao enviar e-mail");
+            }
+
+            setMensagemEnvio("E-mail enviado com sucesso!");
+        } catch (e: any) {
+            console.error(e);
+            setMensagemEnvio("Falha ao enviar e-mail. Tente novamente.");
+        } finally {
+            setEnviando(false);
+        }
+    };
+
+    return (
+        <div className="h-screen w-screen bg-linear-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 flex flex-col">
             {/* Header fixo */}
             <header className="shrink-0 border-b border-slate-200/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/60 backdrop-blur supports-backdrop-filter:backdrop-blur">
                 <div className="px-8 py-5">
@@ -268,22 +306,20 @@ Markdown, código, ou qualquer tentativa de estilização (as respostas devem se
                         Duvidas Mei
                     </h1>
                     <p className="mt-1 text-base text-slate-500 dark:text-slate-400">
-                        Fale qual é sua duvida, gere a análise.
+                        Fale qual é sua dúvida e receba a explicação.
                     </p>
                 </div>
             </header>
 
-            {/* Main ocupa todo o restante da viewport */}
+            {/* Main */}
             <main className="flex-1 overflow-auto px-8 py-8">
-                {/* grid fluida, sem max-width */}
                 <section className="grid gap-8 xl:gap-10 grid-cols-1 lg:grid-cols-2 h-full">
-
-                    {/* Card de entrada ocupa a altura disponível */}
+                    {/* Card de entrada */}
                     <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col">
                         <div className="p-8">
                             <h2 className="text-lg font-medium text-slate-900 dark:text-slate-100">Entrada por voz</h2>
                             <p className="mt-2 text-slate-500 dark:text-slate-400">
-                                Clique e diga o que deseja analisar (ex.: “Como imprimir meu DAS?”, “Como posso fazer o parcelamento?”).
+                                Clique e diga sua dúvida (ex.: “Como emitir meu DAS?”, “Como parcelar minhas dívidas do MEI?”).
                             </p>
 
                             <div className="mt-6">
@@ -295,7 +331,7 @@ Markdown, código, ou qualquer tentativa de estilização (as respostas devem se
                                     onClick={() => resultado && speak(resultado)}
                                     className="inline-flex items-center justify-center rounded-lg border border-transparent bg-slate-900 text-white px-5 py-2.5 text-sm font-medium hover:bg-slate-800 disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
                                     disabled={!resultado || carregando}
-                                    title={resultado ? "Ler o resultado" : "Gere uma análise primeiro"}
+                                    title={resultado ? "Ler o resultado" : "Gere uma resposta primeiro"}
                                 >
                                     Escutar
                                 </button>
@@ -312,7 +348,7 @@ Markdown, código, ou qualquer tentativa de estilização (as respostas devem se
                             {carregando && (
                                 <div className="mt-6 flex items-center gap-3 text-slate-600 dark:text-slate-300">
                                     <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-slate-900 dark:border-slate-700 dark:border-t-white" />
-                                    <span className="text-sm">Gerando análise…</span>
+                                    <span className="text-sm">Gerando resposta…</span>
                                 </div>
                             )}
 
@@ -326,15 +362,13 @@ Markdown, código, ou qualquer tentativa de estilização (as respostas devem se
 
                     {/* Card de resultado */}
                     <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col overflow-hidden">
-                        {/* Cabeçalho do card */}
                         <div className="p-8 pb-4 shrink-0">
                             <h2 className="text-lg font-medium text-slate-900 dark:text-slate-100">Resultado</h2>
                             <p className="mt-2 text-slate-500 dark:text-slate-400">
-                                O conteúdo gerado aparece abaixo. Você pode enviar para o email ou limpar.
+                                O conteúdo gerado aparece abaixo. Você pode enviar para o e-mail ou limpar.
                             </p>
                         </div>
 
-                        {/* Área rolável */}
                         <div className="px-8 flex-1 min-h-0 overflow-auto">
                             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 p-5">
                                 {resultado ? (
@@ -342,46 +376,69 @@ Markdown, código, ou qualquer tentativa de estilização (as respostas devem se
                                         {linkifyAllowed(resultado)}
                                     </div>
                                 ) : (
-                                    <div className="text-sm text-slate-500 dark:text-slate-400">Aguardando sua entrada de voz…</div>
+                                    <div className="text-sm text-slate-500 dark:text-slate-400">
+                                        Aguardando sua entrada de voz…
+                                    </div>
                                 )}
                             </div>
 
-                            {/* Botões fixos no fundo da área rolável */}
+                            {/* Rodapé com e-mail + botões */}
                             <div className="sticky bottom-0 -mx-8 mt-4 border-t border-slate-200 dark:border-slate-800 
-                    bg-white/90 dark:bg-slate-900/90 backdrop-blur px-8 py-4">
-                                <div className="flex gap-3">
-                                    {/*  <button
-                                        // onClick={() => navigator.clipboard.writeText(resultado || "")}
-                                        className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-900 px-4 py-2 text-sm font-medium hover:bg-slate-50 disabled:opacity-50 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
-                                        disabled={!resultado}
-                                    >
-                                        Enviar para -mail
-                                    </button>
-                                    */}
-                                    <button
-                                        onClick={() => setResultado("")}
-                                        className="inline-flex items-center justify-center rounded-lg border border-transparent bg-slate-100 text-slate-700 px-4 py-2 text-sm font-medium hover:bg-slate-200 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                                        disabled={!resultado}
-                                    >
-                                        Limpar
-                                    </button>
+                                bg-white/90 dark:bg-slate-900/90 backdrop-blur px-8 py-4">
+                                <div className="flex flex-col gap-3">
+
+                                    {/* <<< NOVO: campo de e-mail */}
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                                            Enviar resposta para seu e-mail
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="seuemail@exemplo.com"
+                                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 
+                                                placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/60 
+                                                dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 
+                                                dark:focus:ring-slate-100/60"
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-3">
+                                        <button
+                                            onClick={enviarPorEmail}
+                                            className="inline-flex items-center justify-center rounded-lg border border-transparent bg-slate-900 text-white px-4 py-2 text-sm font-medium hover:bg-slate-800 disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+                                            disabled={!resultado || !email || enviando}
+                                        >
+                                            {enviando ? "Enviando..." : "Enviar para e-mail"}
+                                        </button>
+
+                                        <button
+                                            onClick={() => setResultado("")}
+                                            className="inline-flex items-center justify-center rounded-lg border border-transparent bg-slate-100 text-slate-700 px-4 py-2 text-sm font-medium hover:bg-slate-200 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                            disabled={!resultado}
+                                        >
+                                            Limpar
+                                        </button>
+                                    </div>
+
+                                    {mensagemEnvio && (
+                                        <span className="text-xs text-slate-600 dark:text-slate-300">
+                                            {mensagemEnvio}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </div>
-
-
-
                 </section>
             </main>
 
-            {/* Footer enxuto */}
             <footer className="shrink-0 border-t border-slate-200 dark:border-slate-800">
                 <div className="px-8 py-5 text-xs text-slate-500 dark:text-slate-400">
                     Análise gerada por IA. Revise e adapte ao seu contexto.
                 </div>
             </footer>
         </div>
-
     );
 };
